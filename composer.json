@@ -15,7 +15,7 @@
         }
     ],
     "require": {
-        "php": "^7.2",
+        "php": "^7.3",
         "braintree/braintree_php": "~4.6",
         "dompdf/dompdf": "^0.8",
         "illuminate/contracts": "^8.0",

@@ -38,8 +38,8 @@ trait Billable
             'recurring' => true,
         ], $options));
 
-        if (! $response->success) {
-            throw new Exception('Braintree was unable to perform a charge: '.$response->message);
+        if (!$response->success) {
+            throw new Exception('Braintree was unable to perform a charge: ' . $response->message);
         }
 
         return $response;
@@ -109,7 +109,7 @@ trait Billable
         }
 
         return $subscription && $subscription->onTrial() &&
-               $subscription->braintree_plan === $plan;
+            $subscription->braintree_plan === $plan;
     }
 
     /**
@@ -131,7 +131,7 @@ trait Billable
      */
     public function subscribed($subscription = 'default', $plan = null)
     {
-        $subscription = $this->subscription($subscription);
+        $subscription = $this->liveSubscription($subscription);
 
         if (is_null($subscription)) {
             return false;
@@ -142,7 +142,7 @@ trait Billable
         }
 
         return $subscription->valid() &&
-               $subscription->braintree_plan === $plan;
+            $subscription->braintree_plan === $plan;
     }
 
     /**
@@ -158,6 +158,36 @@ trait Billable
         })->first(function ($value) use ($subscription) {
             return $value->name === $subscription;
         });
+    }
+
+    /**
+     * Get the first live subscription that can be found by name
+     *
+     * @param  string  $subscription
+     * @return \Laravel\Cashier\Subscription|null
+     */
+    public function liveSubscription($subscription = 'default')
+    {
+        return $this->subscriptions->sortByDesc(function ($value) {
+            return $value->created_at->getTimestamp();
+        })->first(function ($value) use ($subscription) {
+            return $value->name === $subscription && $value->valid();
+        });
+    }
+
+    /**
+     * Get the first live subscription that can be found by name
+     *
+     * @param  string  $subscription
+     * @return \Laravel\Cashier\Subscription|null
+     */
+    public function cancelAllSubscriptions()
+    {
+        foreach ($this->subscriptions as $subscription) {
+            if ($subscription->active()) {
+                $subscription->cancel();
+            }
+        }
     }
 
     /**
@@ -248,7 +278,7 @@ trait Billable
         // Here we will loop through the Braintree invoices and create our own custom Invoice
         // instance that gets more helper methods and is generally more convenient to work
         // work than the plain Braintree objects are. Then, we'll return the full array.
-        if (! is_null($transactions)) {
+        if (!is_null($transactions)) {
             foreach ($transactions as $transaction) {
                 if ($transaction->status == BraintreeTransaction::SETTLED || $includePending) {
                     $invoices[] = new Invoice($this, $transaction);
@@ -295,8 +325,8 @@ trait Billable
             ], $options)
         );
 
-        if (! $response->success) {
-            throw new Exception('Braintree was unable to create a payment method: '.$response->message);
+        if (!$response->success) {
+            throw new Exception('Braintree was unable to create a payment method: ' . $response->message);
         }
 
         $paypalAccount = $response->paymentMethod instanceof PaypalAccount;
@@ -342,7 +372,7 @@ trait Billable
     {
         $subscription = $this->subscription($subscription);
 
-        if (! $subscription) {
+        if (!$subscription) {
             throw new InvalidArgumentException('Unable to apply coupon. Subscription does not exist.');
         }
 
@@ -377,7 +407,7 @@ trait Billable
     {
         $subscription = $this->subscription($subscription);
 
-        if (! $subscription || ! $subscription->valid()) {
+        if (!$subscription || !$subscription->valid()) {
             return false;
         }
 
@@ -398,7 +428,7 @@ trait Billable
      */
     public function onPlan($plan)
     {
-        return ! is_null($this->subscriptions->first(function ($value) use ($plan) {
+        return !is_null($this->subscriptions->first(function ($value) use ($plan) {
             return $value->braintree_plan === $plan;
         }));
     }
@@ -427,8 +457,8 @@ trait Billable
             ], $options)
         );
 
-        if (! $response->success) {
-            throw new Exception('Unable to create Braintree customer: '.$response->message);
+        if (!$response->success) {
+            throw new Exception('Unable to create Braintree customer: ' . $response->message);
         }
 
         $this->braintree_id = $response->customer->id;
@@ -440,8 +470,8 @@ trait Billable
         $this->forceFill([
             'braintree_id' => $response->customer->id,
             'paypal_email' => $paypalAccount ? $paymentMethod->email : null,
-            'card_brand' => ! $paypalAccount ? $paymentMethod->cardType : null,
-            'card_last_four' => ! $paypalAccount ? $paymentMethod->last4 : null,
+            'card_brand' => !$paypalAccount ? $paymentMethod->cardType : null,
+            'card_last_four' => !$paypalAccount ? $paymentMethod->last4 : null,
         ])->save();
 
         return $response->customer;
@@ -475,6 +505,6 @@ trait Billable
      */
     public function hasBraintreeId()
     {
-        return ! is_null($this->braintree_id);
+        return !is_null($this->braintree_id);
     }
 }
