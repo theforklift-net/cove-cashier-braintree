@@ -26,7 +26,7 @@ You will need to set the following details locally and on your Braintree account
     BRAINTREE_PUBLIC_KEY=
     BRAINTREE_PRIVATE_KEY=
     BRAINTREE_MODEL=Laravel\Cashier\Tests\User
-    
+
 You can set these variables in the `phpunit.xml.dist` file.
 
 ### Braintree
@@ -46,6 +46,9 @@ You can set these variables in the `phpunit.xml.dist` file.
 
 Documentation for Cashier Braintree can be found on the [Laravel website](https://laravel.com/docs/5.8/braintree).
 
-## License
+## Submitting a build
 
-Laravel Cashier Braintree is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+    * Update composer.json to include new php version
+    * Checkout branch for version that you want
+    * Create a git tag with the version
+    * That's it. It will auto be updated on packagist and you can now install it in your app
