@@ -34,7 +34,7 @@ class WebhookController extends Controller
             return $this->{$method}($webhook);
         }
 
-        return $this->missingMethod();
+        return $this->missingMethod($webhook);
     }
 
     /**
@@ -54,7 +54,7 @@ class WebhookController extends Controller
      * @param  \Braintree\WebhookNotification  $webhook
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    protected function handleSubscriptionCanceled($webhook)
+    protected function handleSubscriptionCanceled(\Braintree\WebhookNotification $webhook)
     {
         return $this->cancelSubscription($webhook->subscription->id);
     }
@@ -65,7 +65,7 @@ class WebhookController extends Controller
      * @param  \Braintree\WebhookNotification  $webhook
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    protected function handleSubscriptionExpired($webhook)
+    protected function handleSubscriptionExpired(\Braintree\WebhookNotification $webhook)
     {
         return $this->cancelSubscription($webhook->subscription->id);
     }
@@ -104,8 +104,8 @@ class WebhookController extends Controller
      * @param  array  $parameters
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function missingMethod(array $parameters = [])
+    public function missingMethod(\Braintree\WebhookNotification $webhook)
     {
-        return new Response;
+        return new Response('Missing Method', 200);
     }
 }
