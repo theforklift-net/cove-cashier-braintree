@@ -4,7 +4,7 @@ namespace Laravel\Cashier\Http\Controllers;
 
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Response;
+use Illuminate\Http\Response;
 use Laravel\Cashier\Subscription;
 use Braintree\WebhookNotification;
 use Illuminate\Routing\Controller;
